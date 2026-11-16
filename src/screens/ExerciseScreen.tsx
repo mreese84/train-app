@@ -5,7 +5,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, loadUnitFor, noteId, type SessionRec, type SetRec } from '../db';
+import { db, loadUnitFor, noteId, setId, type SessionRec, type SetRec } from '../db';
 import { SESSIONS, type Exercise } from '../data/exercises';
 import { doseText, getWeek, LOAD_STEP, prescribe, restSecondsFor, type Prescription } from '../plan';
 import { alertDone, unlockAudio } from '../lib/alert';
@@ -70,11 +70,16 @@ function ExerciseView({ session, ex, index, total, rx }: ViewProps) {
 
   const rest = useRestTimer();
 
+  // Optimistic copies of rows written in this visit. Writes are async, so
+  // without these a quick second tap could build on a stale row.
+  const [local, setLocal] = useState<Map<number, SetRec>>(() => new Map());
+
   if (saved === undefined || prevData === undefined || savedNote === undefined) return <main className="page" />;
 
   const prev = prevData.prev;
-  const rows = buildSetRows(ex, rx, saved, prev);
-  const savedByIndex = new Map(saved.map((s) => [s.setIndex, s]));
+  const merged = [...saved.filter((s) => !local.has(s.setIndex)), ...local.values()];
+  const rows = buildSetRows(ex, rx, merged, prev);
+  const savedByIndex = new Map(merged.map((s) => [s.setIndex, s]));
   const hint = progressionHint(ex, prev);
   const lastTime = summarizeSets(prev);
   const restSec = restSecondsFor(ex.id);
@@ -99,6 +104,7 @@ function ExerciseView({ session, ex, index, total, rx }: ViewProps) {
       plannedSets: rx.sets,
       targetMax: rx.targetMax,
     };
+    setLocal((m) => new Map(m).set(r.setIndex, { ...rec, id: setId(sessionId, ex.id, r.setIndex), updatedAt: Date.now() }));
     void saveSet(rec);
   };
 
