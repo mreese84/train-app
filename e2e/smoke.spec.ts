@@ -88,3 +88,16 @@ test('warm-up returns to Strength A, and finishing saves to history', async ({ p
   await expect(page.getByRole('button', { name: /^Strength A\b/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /Golf mobility \(warm-up\)/ })).toBeVisible();
 });
+
+test('works offline after the first load', async ({ page, context }) => {
+  await page.goto('./');
+  await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
+  // Wait for the service worker to install and precache the app.
+  await page.evaluate(async () => { await navigator.serviceWorker.ready; });
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
+  await page.getByRole('button', { name: 'Strength B', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Strength B' })).toBeVisible();
+  await context.setOffline(false);
+});

@@ -27,6 +27,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+        env:
+          BASE_PATH: /train-app/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

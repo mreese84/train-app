@@ -4,9 +4,10 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json' with { type: 'json' };
 
-// GitHub Pages serves the app from https://<user>.github.io/train-app/,
-// so every asset URL is prefixed with /train-app/.
-const BASE = '/train-app/';
+// Base path the app is served from. Local builds (Netlify Drop, `npm run
+// preview`) use the site root. The GitHub Pages workflow sets
+// BASE_PATH=/train-app/ because Pages serves https://<user>.github.io/train-app/.
+const BASE = process.env.BASE_PATH || '/';
 
 export default defineConfig({
   base: BASE,
