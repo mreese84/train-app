@@ -50,6 +50,10 @@ test('Today → Strength A → check a set → reload → still checked', async 
   await expect(page.getByRole('heading', { name: 'Trap bar deadlift' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Set 1 done/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('textbox', { name: 'Set 1 weight in lb' })).toHaveValue('95');
+
+  // Relaunching the app at its start URL resumes the unfinished session.
+  await page.goto('./');
+  await expect(page.getByRole('heading', { name: 'Trap bar deadlift' })).toBeVisible();
 });
 
 test('other screens fit 390px without sideways scroll', async ({ page }) => {
