@@ -1,7 +1,7 @@
 /**
- * The exercise screen (the core of the app): animated figure, form tips,
- * one row per planned set with prefilled load and reps, a big check button
- * that saves immediately, timers, the progression hint and notes.
+ * The exercise screen (the core of the app): animated figure, then one row
+ * per planned set with prefilled load and reps, a big check button
+ * that saves immediately, then form tips, timers, the progression hint and notes.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -140,6 +140,12 @@ function ExerciseView({ session, ex, index, total, rx }: ViewProps) {
 
       <ExerciseAnimation key={ex.id} exercise={ex} />
 
+      <section className="sets" aria-label="Sets">
+        {rows.map((row) => (
+          <SetRowView key={row.setIndex} ex={ex} row={row} onChange={(patch) => persist(row, patch)} onToggle={() => toggle(row)} />
+        ))}
+      </section>
+
       <section className="stack" style={{ gap: 8 }}>
         <button type="button" className="btn tips-toggle" aria-expanded={!!tipsOpen} onClick={() => setTipsOpen((o) => !o)}>
           <span>Form tips</span>
@@ -166,12 +172,6 @@ function ExerciseView({ session, ex, index, total, rx }: ViewProps) {
           {hint && <p className="hint">↑ {hint.text}</p>}
         </section>
       )}
-
-      <section className="sets" aria-label="Sets">
-        {rows.map((row) => (
-          <SetRowView key={row.setIndex} ex={ex} row={row} onChange={(patch) => persist(row, patch)} onToggle={() => toggle(row)} />
-        ))}
-      </section>
 
       <NoteField initial={savedNote.rec?.note ?? ''} onSave={(v) => saveExerciseNote(sessionId, ex.id, v)} />
 
