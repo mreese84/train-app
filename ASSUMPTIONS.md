@@ -4,7 +4,7 @@ Every decision made without you during the overnight build, grouped by area. Cha
 
 ## Deploy
 
-1. **Not deployed yet.** `gh auth status` succeeded, but creating the public `train-app` repo was blocked by Claude Code's permission system during the unattended run. Nothing was pushed. The repo is committed locally and the GitHub Pages workflow (`.github/workflows/deploy.yml`) is ready to go. The README has the exact morning commands.
+1. **Deployed to GitHub Pages** at https://mreese84.github.io/train-app/ from the public repo `mreese84/train-app`. During the unattended run, creating the repo was blocked by Claude Code's permission system, so it was created and deployed the next morning after you approved it. `PROMPT.md` is included in the public repo (it holds no personal data).
 2. **Base path.** Local builds (`npm run build`, Netlify Drop, `npm run preview`) serve from `/`. The Pages workflow builds with `BASE_PATH=/train-app/`. That's why a plain `dist/` works on Netlify Drop.
 3. The CI workflow runs lint and unit tests before building, on Node 24. Playwright doesn't run in CI, to keep deploys fast.
 

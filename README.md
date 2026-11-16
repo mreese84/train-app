@@ -2,43 +2,33 @@
 
 A personal workout log for iPhone: Strength A and B, golf mobility, and cardio, following the base and strength-build plan. It works offline and keeps all data on the phone.
 
-> **Status:** built, tested and committed locally. **Not deployed yet.** Creating the GitHub repo was blocked by a permission prompt during the unattended run. Pick one option below. Option 1 takes about two minutes.
+> **Live:** **https://mreese84.github.io/train-app/** (open it in Safari on your iPhone, then Add to Home Screen.)
 
 ## Put it on your phone
 
-### Option 1: GitHub Pages (recommended: permanent HTTPS link, full offline support)
+### GitHub Pages (live)
 
-From this folder:
-
-```bash
-gh repo create train-app --public --source=. --remote=origin --push
-```
+The app is deployed at **https://mreese84.github.io/train-app/** from the public repo [mreese84/train-app](https://github.com/mreese84/train-app). Every `git push` to `main` runs lint and unit tests, builds, and redeploys (about 1 minute). The installed app picks up the new version the next time it's opened.
 
 ```bash
-gh api -X POST repos/mreese84/train-app/pages -f build_type=workflow
+git push
 ```
-
-```bash
-gh workflow run deploy.yml
-```
-
-Watch it finish (about 1 minute):
 
 ```bash
 gh run watch
 ```
 
-Then open **https://mreese84.github.io/train-app/** on your phone. (The first push also starts a deploy, which fails because Pages isn't switched on yet; the `gh workflow run` re-runs it.) After that, every `git push` redeploys.
-
 The repo holds no personal data. Your workouts live only on your phone.
 
-### Option 2: Netlify Drop (no account setup needed)
+## Other ways to run it
+
+### Netlify Drop (no account setup needed)
 
 1. `dist/` is already built (rebuild with `npm run build` if you change anything).
 2. Go to **app.netlify.com/drop** and drag the `dist` folder onto the page.
 3. Open the `https://….netlify.app` link it gives you on your phone.
 
-### Option 3: quick test on home Wi-Fi (not for real use)
+### Quick test on home Wi-Fi (not for real use)
 
 ```bash
 npm run preview -- --host
@@ -118,7 +108,7 @@ ASSUMPTIONS.md          every decision made without you
 
 ## What to try first
 
-- [ ] Deploy (Option 1 above), open the link in Safari, and **Add to Home Screen**.
+- [ ] Open **https://mreese84.github.io/train-app/** in Safari and **Add to Home Screen**.
 - [ ] Open Train from the icon. Today should say "Base phase · Week 1 of 7" with Strength A.
 - [ ] Tap **Start Strength A** → tap the **Warm-up** step → run through the mobility moves → **Finish** → you're back on Strength A.
 - [ ] Do the trap bar deadlift: enter your weight, tap the big check on set 1, and watch the rest bar (try **+30 s** and **Skip**).
