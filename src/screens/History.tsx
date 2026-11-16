@@ -56,7 +56,8 @@ function SessionList() {
     if (e.kind === 'session') {
       const s = e.s;
       const title = `${SESSIONS[s.type].name}${s.warmupFor ? ' (warm-up)' : ''}`;
-      const sub = s.finishedAt !== null ? `${formatDuration(s.finishedAt - s.startedAt)} · ${e.doneSets} sets` : `Not finished · ${e.doneSets} sets`;
+      const sets = `${e.doneSets} set${e.doneSets === 1 ? '' : 's'}`;
+      const sub = s.finishedAt !== null ? `${formatDuration(s.finishedAt - s.startedAt)} · ${sets}` : `Not finished · ${sets}`;
       out.push(
         <li key={s.id}>
           <button type="button" className="list-item" onClick={() => navigate(`/history/session/${s.id}`)}>

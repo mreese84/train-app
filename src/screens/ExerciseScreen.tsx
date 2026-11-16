@@ -232,10 +232,15 @@ function SetRowView({ ex, row, onChange, onToggle }: { ex: Exercise; row: SetRow
     <div className={`setrow${row.done ? ' done' : ''}`}>
       <div className="setrow-fields">
         <div className="setrow-head">Set {row.setIndex + 1}</div>
-        <div className="field-line">
-          <span className="field-label">{row.isBodyweight && showAddedWeight ? `BW + ${unit ?? 'lb'}` : row.isBand || row.isBodyweight ? 'Load' : `Weight ${unit}`}</span>
-          {loadField}
-        </div>
+        {row.isBand || (row.isBodyweight && !showAddedWeight) ? (
+          // No weight to enter: the label spans the whole line.
+          <div className="field-line field-line-full">{loadField}</div>
+        ) : (
+          <div className="field-line">
+            <span className="field-label">{row.isBodyweight ? `BW + ${unit ?? 'lb'}` : `Weight ${unit}`}</span>
+            {loadField}
+          </div>
+        )}
         <div className="field-line">
           <span className="field-label">{unitLabel(ex)}</span>
           <NumberStepper

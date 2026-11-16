@@ -5,6 +5,23 @@ async function noHorizontalOverflow(page: Page) {
   expect(scroll, 'page should not scroll sideways').toBeLessThanOrEqual(width);
 }
 
+/** Counts checked sets stored in the app's IndexedDB (runs in the page). */
+function doneSetCount(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('train');
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => {
+      const tx = req.result.transaction('sets', 'readonly');
+      const all = tx.objectStore('sets').getAll();
+      all.onsuccess = () => {
+        resolve((all.result as { done: boolean }[]).filter((s) => s.done).length);
+        req.result.close();
+      };
+      all.onerror = () => reject(all.error);
+    };
+  });
+}
+
 test('Today → Strength A → check a set → reload → still checked', async ({ page }) => {
   await page.goto('./');
   await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
@@ -27,6 +44,8 @@ test('Today → Strength A → check a set → reload → still checked', async 
   await expect(done).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('timer')).toBeVisible(); // rest timer bar
 
+  // Wait until the checked set is committed to IndexedDB, then reload.
+  await expect.poll(() => page.evaluate(doneSetCount)).toBe(1);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Trap bar deadlift' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Set 1 done/ })).toHaveAttribute('aria-pressed', 'true');
@@ -45,4 +64,27 @@ test('other screens fit 390px without sideways scroll', async ({ page }) => {
   await page.getByRole('button', { name: /Half-kneeling hip flexor stretch/ }).click();
   await expect(page.getByRole('button', { name: /Start timer/ })).toBeVisible();
   await noHorizontalOverflow(page);
+});
+
+test('warm-up returns to Strength A, and finishing saves to history', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Strength A', exact: true }).click();
+  await page.getByRole('button', { name: /Warm-up: Golf mobility/ }).click();
+  await expect(page.getByRole('heading', { name: 'Golf mobility' })).toBeVisible();
+
+  // Finish the warm-up early: it should return to Strength A with the step done.
+  await page.getByRole('button', { name: 'Finish session' }).click();
+  await page.getByRole('button', { name: 'Save & finish' }).click();
+  await expect(page.getByRole('heading', { name: 'Strength A' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Warm-up: Golf mobility/ }).getByLabel('Done')).toBeVisible();
+
+  // Finish Strength A with a note.
+  await page.getByRole('button', { name: 'Finish session' }).click();
+  await page.getByLabel('Session note (optional)').fill('Felt good');
+  await page.getByRole('button', { name: 'Save & finish' }).click();
+  await expect(page.getByRole('heading', { name: 'Today' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'History' }).click();
+  await expect(page.getByRole('button', { name: /^Strength A\b/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Golf mobility \(warm-up\)/ })).toBeVisible();
 });
